@@ -9,3 +9,12 @@
 5. test public method: ./krakenapi.py Time
 6. test private method: ./krakenapi.py Balance (you can pipe it to [jq](https://github.com/stedolan/jq) to get a pretty output)
 7. read https://www.kraken.com/features/api
+
+ex:
+* add a simple order:
+    ```krakenapi.py AddOrder pair=xbteur type=buy ordertype=market volume=0.1```
+
+* or a complex one:
+    ```krakenapi.py AddOrder pair=xbteur type=sell ordertype=take-profit-limit price=50100 price2=50000 volume=0.2 "close[ordertype]=take-profit-limit" "close[price]=49000" "close[price2]=49100"```
+
+> Remember, bash completion is cool.
