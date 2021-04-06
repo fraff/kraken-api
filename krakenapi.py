@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # https://github.com/fraff/kraken-api
+# original is here: https://support.kraken.com/hc/article_attachments/360077566151/krakenapi.py
 
 # Kraken Rest API
 #
