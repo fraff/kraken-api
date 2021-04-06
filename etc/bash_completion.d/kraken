@@ -1,0 +1,88 @@
+# https://github.com/fraff/kraken-api
+# https://support.kraken.com/hc/article_attachments/360077566151/krakenapi.py
+# https://www.kraken.com/features/api
+
+# FIXME: TradesHistory type=any%20position will returns an error because krakenapi.py will encode '%'
+
+_list()
+{
+    local -A my_words
+    local i s
+
+    _init_completion -n = || return
+    _expand || return 0
+
+    my_words=(
+         [Time]="" 
+         [Assets]="info aclass asset" 
+         [AssetPairs]="info pair" 
+         [sub_AssetPairs_info]="info leverage fees margin"
+         [Ticker]="pair" 
+         [OHLC]="pair interval since" 
+         [sub_OHLC_interval]="1 5 15 30 60 240 1440 10080 21600"
+         [Depth]="pair count" 
+         [Trades]="pair since" 
+         [Spread]="pair since"
+         
+         [Balance]="aclass asset" 
+         [BalanceEx]="" 
+         [TradeBalance]="aclass asset" 
+         [OpenOrders]="trades userref"
+         [ClosedOrders]="trades userref start end ofs closetime" 
+         [sub_ClosedOrders_closetime]="open close both" 
+         [QueryOrders]="trades userref txid" 
+         [TradesHistory]="type trades start end ofs" 
+         [sub_TradesHistory_type]="all any%20position closed%20position closing%20position no%20position" 
+         [QueryTrades]="txid trades" 
+         [OpenPositions]="txid Adocalcs consolidation" 
+         [Ledgers]="aclass asset type start end ofs" 
+         [sub_Ledgers_aclass]="currency" 
+         [sub_Ledgers_type]="all deposit withdrawal trade margin" 
+         [QueryLedgers]="id" 
+         [TradeVolume]="pair fee-info" 
+         [AddExport]="" 
+         [ExportStatus]="" 
+         [RetrieveExport]="" 
+         [RemoveExport]="" 
+         [GetWebSocketsToken]=""
+
+         [AddOrder]="pair type ordertype price price2 volume leverage oflags fcib fciq nompp post starttm expiretm userref validate close[ordertype] close[price] close[price2]"
+         [sub_AddOrder_ordertype]="limit stop-loss take-profit stop-loss-limit take-profit-limit settle-position"
+         [sub_AddOrder_oflags]="fcib fciq nompp post"
+         [sub_AddOrder_starttm]="0 + $(date +%s)"
+         [sub_AddOrder_expiretm]="${my_words[sub_AddOrder_starttm]}"
+         [CancelOrder]="txid" 
+         [CancelAll]=""
+         [CancelAllOrdersAfter]="timeout"
+         
+         [DepositMethods]="" 
+         [DepositAddresses]="" 
+         [DepositStatus]="" 
+         [WithdrawInfo]="" 
+         [Withdraw]="" 
+         [WithdrawStatus]="" 
+         [WithdrawCancel]="" 
+         [WalletTransfer]=""
+    )
+
+    if (( cword > 1 ))
+    then
+        i="${words[1]}"
+        s="sub_${i}_${cur%=*}"
+        if [[ "$cur" == *=* ]]
+        then
+            COMPREPLY+=( $(compgen -W '${my_words[$s]}' -- "${cur#*=}") )
+        else
+            compopt -o nospace
+            COMPREPLY+=( $(compgen -W '${my_words[$i]}' -X 'sub_*' -S '=' -- "$cur") )
+        fi
+    else
+        COMPREPLY+=( $(compgen -W '${!my_words[*]}' -X 'sub_*' -- "$cur") )
+    fi
+}
+complete -F _list krakenapi.py
+
+# echo "$*" | grep = | sed 's/(.*//' | field -l -i = 1 | tr -s ' ' | tr -d '\n' | tee /dev/stderr | xclip -selection primary -in
+
+
+# ex: ts=4 sw=4 et filetype=sh
