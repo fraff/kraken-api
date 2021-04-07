@@ -76,7 +76,7 @@ elif api_method in api_public:
 else:
     print("Usage: %s method [parameters]" % sys.argv[0])
     print("Example: %s OHLC pair=xbtusd interval=1440" % sys.argv[0])
-    print("See: https://www.kraken.com/features/api" % sys.argv[0])
+    print("See: %s https://www.kraken.com/features/api" % sys.argv[0])
     sys.exit(1)
 
 try:
