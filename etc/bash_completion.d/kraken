@@ -7,11 +7,14 @@
 _kraken_api()
 {
     local -A my_words
-    local i s key val
+    local method sub key val
 
     _init_completion -n = || return
     _expand || return 0
 
+    # these are all method and keyword accepted by kraken api
+    # plus some value
+    # plus some function to manage method/key
     my_words=(
          [Time]=""
          [Assets]="info aclass asset"
@@ -66,23 +69,34 @@ _kraken_api()
          [WalletTransfer]=""
     )
 
+    # how many work on command line
     if (( cword > 1 ))
     then
-        i="${words[1]}"
-        s="sub_${i}_${cur%=*}"
+        method="${words[1]}"
+        key="${cur%=*}"
+        val=${cur#*=}
+        sub="sub_${method}_${key}"
+
+        # we already have keyword= so we are completing values
         if [[ "$cur" == *=* ]]
         then
-            COMPREPLY+=( $(compgen -W '${my_words[$s]}' -- "${cur#*=}") )
+            COMPREPLY+=( $(compgen -W '${my_words[$sub]}' -- "${val}") )
+
+            # in this special case, overwrite user input with output of date()
+            if [[ "$method" == "AddOrder" && "${val:0:1}" == "+" ]] && [[ "$key" == "starttm" || "$key" == "expiretm" ]]
+            then
+                COMPREPLY+=($(date -ud "19700101 $val" "++%s" 2>/dev/null))
+            fi
+
+        # we are completing keywords, no value yet
+        # exclude sub_* and add final equal sign, no final space
         else
             compopt -o nospace
-            COMPREPLY+=( $(compgen -W '${my_words[$i]}' -X 'sub_*' -S '=' -- "$cur") )
+            COMPREPLY+=( $(compgen -W '${my_words[$method]}' -X 'sub_*' -S '=' -- "$cur") )
         fi
 
-        if [[ $i == "AddOrder" ]] && [[ "$cur" == starttm=+* || "$cur" == expiretm=+* ]]
-        then
-            key="${cur%+*}" val=${cur#*+}
-            COMPREPLY+=(+$(date -ud "19700101 $val" "+%s"))
-        fi
+    # first keyword, complete with methods list and exclude sub_*
+    # add final space
     else
         COMPREPLY+=( $(compgen -W '${!my_words[*]}' -X 'sub_*' -- "$cur") )
     fi
