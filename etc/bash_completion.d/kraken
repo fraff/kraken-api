@@ -6,15 +6,17 @@
 
 _kraken_api()
 {
-    local -A my_words
-    local method sub key val
+    local -A my_words my_time
+    local method sub key val num unit tmp
 
     _init_completion -n = || return
     _expand || return 0
 
+    # how many seconds is there in a week ? let's figure out here:
+    my_time=([now]=0 [second]=1 [minute]=60 [hour]=3600 [day]=86400 [week]=604800 [month]=18144000)
+
     # these are all method and keyword accepted by kraken api
     # plus some value
-    # plus some function to manage method/key
     my_words=(
          [Time]=""
          [Assets]="info aclass asset"
@@ -53,7 +55,7 @@ _kraken_api()
          [sub_AddOrder_type]="buy sell"
          [sub_AddOrder_ordertype]="limit stop-loss take-profit stop-loss-limit take-profit-limit settle-position"
          [sub_AddOrder_oflags]="fcib fciq nompp post"
-         [sub_AddOrder_starttm]="0 + $(date +%s)"
+         [sub_AddOrder_starttm]="${!my_time[@]}"
          [sub_AddOrder_expiretm]="${my_words[sub_AddOrder_starttm]}"
          [CancelOrder]="txid"
          [CancelAll]=""
@@ -80,12 +82,30 @@ _kraken_api()
         # we already have keyword= so we are completing values
         if [[ "$cur" == *=* ]]
         then
-            COMPREPLY+=( $(compgen -W '${my_words[$sub]}' -- "${val}") )
 
             # in this special case, overwrite user input with output of date()
-            if [[ "$method" == "AddOrder" && "${val:0:1}" == "+" ]] && [[ "$key" == "starttm" || "$key" == "expiretm" ]]
+            if [[ "$method" == "AddOrder" ]] && [[ "$key" == "starttm" || "$key" == "expiretm" ]]
             then
-                COMPREPLY+=($(date -ud "19700101 $val" "++%s" 2>/dev/null))
+                # get '3' and 'day' from starttm=3day or starttm=+3day
+                num="${val//[![:digit:]]/}"
+                unit="${val//[[:digit:]+]/}"
+
+                # get possible completion of time unit and prefix by $num so '3d' becomes '3day'
+                COMPREPLY+=( $(compgen -P "$num" -W '${!my_time[*]}' -- "$unit") )
+
+                # once we got only one possible result, compute number of seconds from time unit
+                # and remplace user input with it
+                if (( ${#COMPREPLY[@]} == 1 ))
+                then
+                    unit="${COMPREPLY[0]#$num}"
+                    num="${num:-1}"
+
+                    COMPREPLY=( +$((${my_time[$unit]} * $num)) )
+                fi
+
+            # we're not in special case, just complete user input with sub_ keywords
+            else
+                COMPREPLY+=( $(compgen -W '${my_words[$sub]}' -- "${val}") )
             fi
 
         # we are completing keywords, no value yet
