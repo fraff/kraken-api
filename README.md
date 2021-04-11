@@ -15,6 +15,6 @@ ex:
     ```krakenapi.py AddOrder pair=xbteur type=buy ordertype=market volume=0.1```
 
 * or a complex one:
-    ```krakenapi.py AddOrder pair=xbteur type=sell ordertype=take-profit-limit price=50100 price2=50000 volume=0.2 "close[ordertype]=take-profit-limit" "close[price]=49000" "close[price2]=49100"```
+    ```krakenapi.py AddOrder pair=xbteur type=sell ordertype=take-profit-limit price=50100 price2=50000 volume=0.2 "close[ordertype]=take-profit-limit" "close[price]=49000" "close[price2]=49100 starttm=3da<tab> expiretm=2w<tab>"```
 
 > Remember, bash completion is cool.
