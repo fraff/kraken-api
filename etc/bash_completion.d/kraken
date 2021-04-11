@@ -51,9 +51,9 @@ _kraken_api()
          [RemoveExport]=""
          [GetWebSocketsToken]=""
 
-         [AddOrder]="pair type ordertype price price2 volume leverage oflags fcib fciq nompp post starttm expiretm userref validate close[ordertype] close[price] close[price2]"
+         [AddOrder]="pair type ordertype price price2 volume leverage oflags starttm expiretm userref validate close[ordertype] close[price] close[price2]"
          [sub_AddOrder_type]="buy sell"
-         [sub_AddOrder_ordertype]="limit stop-loss take-profit stop-loss-limit take-profit-limit settle-position"
+         [sub_AddOrder_ordertype]="market limit stop-loss take-profit stop-loss-limit take-profit-limit settle-position"
          [sub_AddOrder_oflags]="fcib fciq nompp post"
          [sub_AddOrder_starttm]="${!my_time[@]}"
          [sub_AddOrder_expiretm]="${my_words[sub_AddOrder_starttm]}"
