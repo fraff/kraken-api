@@ -1,4 +1,4 @@
-# kraken-api
+# [kraken-api](https://github.com/fraff/kraken-api)
 
 ### Simple python client to kraken api with cool bash completion
 
